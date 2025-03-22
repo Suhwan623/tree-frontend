@@ -139,6 +139,7 @@ const Tree: React.FC = () => {
   const [backgroundOptions, setBackgroundOptions] = useState<string[]>([]);
   const [pointOptions, setPointOptions] = useState<string[]>([]);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [nickname, setNickname] = useState<string | null>(null);
   const navigate = useNavigate();
 
   interface TypeToPath {
@@ -192,17 +193,33 @@ const Tree: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         const { treeInfo } = res.data;
-        setSelectedBackground(treeInfo && treeInfo[0] ? treeInfo[0] : null);
-        setSelectedPoint(treeInfo && treeInfo[1] ? treeInfo[1] : null);
-        setSelectedTree(treeInfo && treeInfo[2] ? treeInfo[2] : null);
         console.log("User Config:", res.data);
+        setSelectedBackground(treeInfo && treeInfo[0] ? treeInfo[0] : null); // 배경
+        setSelectedTree(treeInfo && treeInfo[1] ? treeInfo[1] : null); // 트리
+        setSelectedPoint(treeInfo && treeInfo[2] ? treeInfo[2] : null); // 포인트
       } catch (error) {
         console.error("사용자 설정 불러오기 실패:", error);
       }
     };
 
+    const fetchUserInfo = async () => {
+      try {
+        const res = await customAxios.get("/api/user/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.data.message === "ok") {
+          setNickname(res.data.nickname);
+        } else {
+          console.error("닉네임 가져오기 실패:", res.data.message);
+        }
+      } catch (error) {
+        console.error("사용자 정보 불러오기 실패:", error);
+      }
+    };
+
     fetchImages();
     fetchUserConfig();
+    fetchUserInfo();
   }, [navigate]);
 
   const fetchAssetId = async (imgName: string, type: string) => {
@@ -232,29 +249,37 @@ const Tree: React.FC = () => {
       return;
     }
 
-    try {
-      const [backgroundId, treeId, pointId] = await Promise.all([
-        fetchAssetId(selectedBackground, "backs"),
-        fetchAssetId(selectedTree, "trees"),
-        fetchAssetId(selectedPoint, "points"),
-      ]);
+    const [backgroundId, treeId, pointId] = await Promise.all([
+      fetchAssetId(selectedBackground, "backs"),
+      fetchAssetId(selectedTree, "trees"),
+      fetchAssetId(selectedPoint, "points"),
+    ]);
 
-      console.log("Sending data:", { background: backgroundId, tree: treeId, treePoint: pointId });
-      await customAxios.post(
-        "/api/tree",
-        {
-          background: backgroundId,
-          tree: treeId,
-          treePoint: pointId,
-        },
-        { headers: { Authorization: `Bearer ${accessToken}` } }
-      );
-
-      console.log("설정 저장 성공");
-      navigate("/result");
-    } catch (error) {
-      console.error("설정 저장 실패:", error);
+    if (!backgroundId || !treeId || !pointId) {
+      alert("유효한 에셋 ID를 찾을 수 없습니다!");
+      return;
     }
+
+    console.log("Sending data:", { background: backgroundId, tree: treeId, treePoint: pointId });
+    await customAxios.post(
+      "/api/tree",
+      {
+        background: backgroundId,
+        tree: treeId,
+        treePoint: pointId,
+      },
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+
+    console.log("설정 저장 성공");
+    navigate("/result", {
+      state: {
+        background: selectedBackground,
+        tree: selectedTree,
+        point: selectedPoint,
+        nickname,
+      },
+    });
   };
 
   return (

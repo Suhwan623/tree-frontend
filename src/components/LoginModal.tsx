@@ -1,16 +1,16 @@
+// components/LoginModal.tsx
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom"; // 추가
+import { useNavigate } from "react-router-dom";
 import { customAxios } from "../api/axios";
 
 // Props 타입 정의
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginSuccess?: (token: string, refreshToken: string) => void; // 토큰 전달 (선택적)
+  onLoginSuccess?: (token: string, refreshToken: string) => void;
 }
 
-// 스타일드 컴포넌트 정의 (변경 없음)
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -85,15 +85,13 @@ const ErrorText = styled.p`
   text-align: center;
 `;
 
-// 컴포넌트 정의
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess }) => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const navigate = useNavigate(); // 추가
+  const navigate = useNavigate();
 
-  // 모달이 열릴 때 입력값 초기화
   useEffect(() => {
     if (isOpen) {
       setUsername("");
@@ -105,6 +103,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
   const handleLogin = async () => {
     setIsLoading(true);
     try {
+      // 로그인 요청
       const response = await customAxios.post("/api/login", {
         username,
         password,
@@ -112,16 +111,39 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
       const { result, token, refreshToken } = response.data;
 
       if (result === "ok") {
-        localStorage.setItem("accessToken", token); // 액세스 토큰 저장
-        localStorage.setItem("refreshToken", refreshToken); // 리프레시 토큰 저장
+        localStorage.setItem("accessToken", token);
+        localStorage.setItem("refreshToken", refreshToken);
         console.log("로그인 성공, 토큰 저장됨:", { token, refreshToken });
         alert("로그인 성공!");
-        
+
         if (onLoginSuccess) {
-          onLoginSuccess(token, refreshToken); // 상위 컴포넌트로 토큰 전달
+          onLoginSuccess(token, refreshToken);
         }
+
+        try {
+          const treeResponse = await customAxios.get("/api/tree/my", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          console.log("트리 정보 응답:", treeResponse.data);
+
+          const { treeInfo } = treeResponse.data;
+
+          const hasTreeAssets =
+            Array.isArray(treeInfo) &&
+            treeInfo.length === 3 &&
+            treeInfo.every((item: string) => typeof item === "string" && item.trim() !== "");
+
+          if (hasTreeAssets) {
+            navigate("/result");
+          } else {
+            navigate("/tree");
+          }
+        } catch (treeError) {
+          console.error("트리 정보 조회 실패:", treeError);
+          navigate("/tree");
+        }
+
         onClose();
-        navigate("/tree"); // 추가: Tree 페이지로 이동
       } else {
         throw new Error("로그인 결과가 'ok'가 아님");
       }
