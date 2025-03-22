@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
-const apiServer: string = "http://localhost:8070";
+// 배포된 백엔드 주소로 변경
+const apiServer: string = "http://ec2-3-34-203-13.ap-northeast-2.compute.amazonaws.com:8070";
 
 export const customAxios = axios.create({
   baseURL: apiServer,
