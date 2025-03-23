@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 
 // 배포된 백엔드 주소로 변경
-const apiServer: string = "http://ec2-3-34-203-13.ap-northeast-2.compute.amazonaws.com:8070";
+const apiServer: string = "https://api.ssdw.store";
 
 export const customAxios = axios.create({
   baseURL: apiServer,
