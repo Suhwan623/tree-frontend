@@ -210,7 +210,7 @@ const DecorationSelection: React.FC<DecorationSelectionProps> = ({
     onDecorationSelect,
     onNext,
 }) => {
-    const getImageUrl = (imgName: string) => `http://localhost:8070/images/posts/${imgName}`;
+    const getImageUrl = (imgName: string) => `https://api.ssdw.store/images/posts/${imgName}`;
 
     return (
         <>
