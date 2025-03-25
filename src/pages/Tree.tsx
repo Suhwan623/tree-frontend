@@ -155,7 +155,7 @@ const Tree: React.FC = () => {
   };
 
   const getImageUrl = (imgName: string, type: keyof TypeToPath) =>
-    `http://localhost:8070/images/${typeToPath[type]}/${imgName}`;
+    `https://www.ssdw.store/images/${typeToPath[type]}/${imgName}`;
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");

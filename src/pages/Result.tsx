@@ -311,7 +311,7 @@ const Result: React.FC = () => {
   const itemsPerPage = 9;
 
   const getImageUrl = (imgName: string, type: string) =>
-    `http://localhost:8070/images/${type}/${imgName}`;
+    `https://api.ssdw.store/images/${type}/${imgName}`;
 
   const getDecorationPosition = (index: number) => {
     const positions = [

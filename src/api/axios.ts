@@ -1,6 +1,5 @@
 import axios, { AxiosResponse } from "axios";
 
-// 배포된 백엔드 주소로 변경
 const apiServer: string = "https://api.ssdw.store";
 
 export const customAxios = axios.create({

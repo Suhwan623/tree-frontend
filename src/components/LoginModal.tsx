@@ -1,4 +1,3 @@
-// components/LoginModal.tsx
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
@@ -164,28 +163,35 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLoginSuccess
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={(e: React.MouseEvent) => e.stopPropagation()}>
         <ModalTitle>로그인</ModalTitle>
-        <ModalInput
-          type="text"
-          placeholder="아이디"
-          value={username}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setUsername(e.target.value)
-          }
-          disabled={isLoading}
-        />
-        <ModalInput
-          type="password"
-          placeholder="비밀번호"
-          value={password}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setPassword(e.target.value)
-          }
-          disabled={isLoading}
-        />
-        {loginError && <ErrorText>{loginError}</ErrorText>}
-        <ModalButton onClick={handleLogin} disabled={isLoading}>
-          {isLoading ? "처리 중..." : "로그인"}
-        </ModalButton>
+        <form onSubmit={(e: React.FormEvent) => {
+          e.preventDefault(); // 폼 제출 시 페이지 리로드 방지
+          handleLogin();
+        }}>
+          <ModalInput
+            type="text"
+            placeholder="아이디"
+            value={username}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setUsername(e.target.value)
+            }
+            disabled={isLoading}
+            autoComplete="username"
+          />
+          <ModalInput
+            type="password"
+            placeholder="비밀번호"
+            value={password}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setPassword(e.target.value)
+            }
+            disabled={isLoading}
+            autoComplete="current-password"
+          />
+          {loginError && <ErrorText>{loginError}</ErrorText>}
+          <ModalButton type="submit" disabled={isLoading}>
+            {isLoading ? "처리 중..." : "로그인"}
+          </ModalButton>
+        </form>
         <ModalButton onClick={onClose} disabled={isLoading}>
           닫기
         </ModalButton>
