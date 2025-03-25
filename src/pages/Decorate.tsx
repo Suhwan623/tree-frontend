@@ -256,7 +256,7 @@ const LetterWriting: React.FC<LetterWritingProps> = ({
     onSubmit,
 }) => {
     const [isPrivate, setIsPrivate] = useState(false);
-    const getImageUrl = (imgName: string) => `http://localhost:8070/images/posts/${imgName}`;
+    const getImageUrl = (imgName: string) => `https://api.ssdw.store/images/posts/${imgName}`;
 
     return (
         <>
